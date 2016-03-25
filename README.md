@@ -47,4 +47,3 @@ Login:
   - share: gcs-store
 You can backup your Windows or other Samba-compatible machine into this share.
 All uploaded file upload the google cloud storage immediately.
-
