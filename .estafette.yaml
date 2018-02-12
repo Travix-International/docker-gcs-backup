@@ -1,0 +1,41 @@
+builder:
+  track: stable
+
+labels:
+  app: gcs-backup
+  team: tooling
+
+pipelines:
+  set-pending-build-status:
+    image: extensions/bitbucket-status:stable
+    status: pending
+    when:
+      server == 'estafette'
+
+  bake:
+    image: docker:17.04.0-ce
+    commands:
+      - docker build -t gcr.io/travix-com/${ESTAFETTE_LABEL_APP}:${ESTAFETTE_BUILD_VERSION} .
+
+  push-to-gcr-io:
+    image: docker:17.04.0-ce
+    commands:
+    - docker login --username=_json_key --password="${ESTAFETTE_GCR_PASSWORD}" https://gcr.io
+    - docker push gcr.io/travix-com/${ESTAFETTE_LABEL_APP}:${ESTAFETTE_BUILD_VERSION}
+    when:
+      status == 'succeeded' &&
+      server == 'gocd'
+
+  set-build-status:
+    image: extensions/bitbucket-status:stable
+    when:
+      server == 'estafette'
+
+  slack-notify:
+    image: extensions/slack-build-status:stable
+    webhook: estafette.secret(il1cM5v4HYO2ljwR.gH5DV8-PIxWAghapd3Umm1Tf7J9tdne2rWy7UL6_jXt9QhgtjzDN-oshSJYzcZNFdquykAo8oGL9CYQ6SdR5vSi84riYTltGHn-El83Vgctr1aSDyER-G1fBAYEC)
+    name: ${ESTAFETTE_LABEL_APP}
+    channels:
+    - '#swat-team'
+    when:
+      status == 'failed'
