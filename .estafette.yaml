@@ -14,8 +14,11 @@ pipelines:
 
   bake:
     image: docker:17.04.0-ce
+    env: 
+      SAMBA_USERNAME: estafette.secret(gSe1zANVXe6DDCkH.hfXEUfK1qNgyt_hFZuo_IxwZhgvmfL1yqE--0A==)
+      SAMBA_PASSWORD: estafette.secret(Efw4kPoEYr5YB6Lz.WcQGHG3fm07h7-7p_j3GD-KKv1zsxCUBYq8jeQ==)
     commands:
-      - docker build -t gcr.io/travix-com/${ESTAFETTE_LABEL_APP}:${ESTAFETTE_BUILD_VERSION} .
+      - docker build --build-arg SAMBA_USERNAME=${SAMBA_USERNAME} --build-arg SAMBA_PASSWORD=${SAMBA_PASSWORD} -t gcr.io/travix-com/${ESTAFETTE_LABEL_APP}:${ESTAFETTE_BUILD_VERSION} .
 
   push-to-gcr-io:
     image: docker:17.04.0-ce
